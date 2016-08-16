@@ -11,7 +11,7 @@
   6. The request ID can be used to check the current status of the job running and return back the   results of the job.
   7. Website scraping job is a simple job that does the following:
     * Makes a request to website and gathers its response.
-    * If items to scrape were requested the next step should be to process the response and find the   items.
+    * If items to scrape were requested the next step should be to process the response and find the items.
     * Store the result of the job so it can be retrieved later by ID.
 
 **Solution:**
