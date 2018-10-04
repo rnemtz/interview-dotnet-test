@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using EazeCrawler.Common.Events;
@@ -14,7 +16,7 @@ namespace EazeCrawler.Services
     public class Crawler : ICrawler, IJob
     {
         private readonly IEventManager _eventManager;
-
+        private const int MaxLevels = 10;
         public Crawler()
         {
             _eventManager = EventManager.Instance;
@@ -24,14 +26,57 @@ namespace EazeCrawler.Services
         {
             await Task.Run(() =>
             {
-                var result = new JobResult();
-                result.UrList.Add("http://www.google.com");
+                var jobDetail = GetJobDetail(context);
 
-                var args = new JobCompletedEventArgs {JobDetail = GetJobDetail(context), Results = result};
-                Thread.Sleep(3000);
+                var result = new JobResult();
+                var visited = new HashSet<Uri>();
+                var pending = new Queue<Uri>();
+
+                var requestedUri = new Uri(jobDetail.Url);
+                pending.Enqueue(requestedUri);
+                var level = 0;
+                while (pending.Count > 0 || level >= MaxLevels)
+                {
+                    var current = pending.Dequeue();
+                    visited.Add(current);
+
+                    foreach (var uri in GetListFromUri(current))
+                    {
+                        if (!visited.Contains(uri)) pending.Enqueue(uri);
+                    }
+                }
+                visited.Remove(requestedUri);
+                foreach (var uri in visited) result.UrList.Add(uri.AbsoluteUri);
+
+                var args = new JobCompletedEventArgs {JobDetail = jobDetail, Results = result};
                 ExecuteOnCompleted(args);
             });
         }
+
+        private static IEnumerable<Uri> GetListFromUri(Uri url)
+        {
+            var body = GetHttpContent(url);
+            var result = new List<Uri>();
+
+            return result;
+        }
+
+        private static async Task<string> GetHttpContent(Uri url)
+        {
+            string responseBody;
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    responseBody = await client.GetStringAsync(url);
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+            return responseBody;
+        } 
 
         private void ExecuteOnCompleted(Common.Interfaces.IJob args)
         {

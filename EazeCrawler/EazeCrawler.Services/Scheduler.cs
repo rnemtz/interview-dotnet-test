@@ -41,10 +41,6 @@ namespace EazeCrawler.Services
             return await Task.Run(() => _dataCollection.GetJob(id).Results);
         }
 
-        /// <summary>
-        /// Request to return results from Data Collection
-        /// </summary>
-        /// <returns>List of IJobResult</returns>
         public async Task<IList<IJobResult>> GetResults()
         {
             return await Task.Run(() => _dataCollection.GetResults());
