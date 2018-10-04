@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using EazeCrawler.Common.Interfaces;
+using EazeCrawler.Common.Models;
 using EazeCrawler.Extensions;
 using EazeCrawler.Services;
 using Microsoft.AspNetCore.Builder;
@@ -68,6 +69,8 @@ namespace EazeCrawler
 
             // This is where our bindings are configurated
             kernel.Bind<ICrawler>().To<Crawler>().InScope(RequestScope);
+            kernel.Bind<IJobDetail>().To<JobDetail>().InScope(RequestScope);
+
             kernel.Bind<IEventManager>().To<EventManager>().InSingletonScope();
             kernel.Bind<IScheduler>().To<Scheduler>().InSingletonScope();
                 

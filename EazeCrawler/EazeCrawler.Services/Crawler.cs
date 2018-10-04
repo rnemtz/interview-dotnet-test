@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EazeCrawler.Common.Events;
 using EazeCrawler.Common.Interfaces;
@@ -9,7 +10,7 @@ namespace EazeCrawler.Services
 {
     public class Crawler : ICrawler, IJob
     {
-        public Crawler(IEventManager eventManager)
+        public Crawler()
         {
         }
 
@@ -17,7 +18,8 @@ namespace EazeCrawler.Services
         {
             await Task.Run(() =>
             {
-                var args = new JobRunningEventArgs { JobDetail = new JobDetail { Id = Guid.NewGuid(), Name = "Test From Crawler" } };
+                //var args = new JobRunningEventArgs { JobDetail = new JobDetail { Id = Guid.NewGuid(), Name = "Test From Crawler" } };
+                Thread.Sleep(3000);
             });
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
@@ -20,20 +19,44 @@ namespace EazeCrawler.Controllers
 
         // GET api/v1/scraper
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IJobDetail>>> Get()
+        public async Task<IActionResult> Get(Guid id = default(Guid))
         {
-            var job = new JobDetail {Id = Guid.NewGuid(), Name = "Test"};
-            var result = await _schedulerService.ScheduleJob(job);
-            return null;
+            try
+            {
+                if (id == default(Guid))
+                {
+                    var results = await _schedulerService.GetResults();
+                    return Ok(results);
+                }
+
+                var job = await _schedulerService.GetJobStatus(id);
+                if (job == null) return NotFound(id);
+
+                return Ok(job);
+
+            }
+            catch (Exception exception)
+            {
+                return StatusCode(500, exception);
+            }
         }
 
         // POST api/v1/scraper
         [HttpPost]
-        public async Task<IActionResult> Post(IJobDetail jobDetail)
+        public async Task<IActionResult> Post([FromBody]JobDetail jobDetail)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-             //await _schedulerService.ExecuteJob(jobDetail);
-            return CreatedAtAction("", "", new {JobDetail = jobDetail}, jobDetail);
+            if (string.IsNullOrWhiteSpace(jobDetail.Name) || string.IsNullOrWhiteSpace(jobDetail.Url)) return BadRequest();
+            try
+            {
+                if (jobDetail.Id == default(Guid)) jobDetail.Id = Guid.NewGuid();
+
+                await _schedulerService.ScheduleJob(jobDetail);
+                return Ok(jobDetail);
+            }
+            catch (Exception exception)
+            {
+                return StatusCode(500, exception);
+            }
         }
     }
 }

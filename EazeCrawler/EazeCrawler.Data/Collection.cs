@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
 
@@ -12,8 +13,7 @@ namespace EazeCrawler.Data
     {
         public static ICollection Instance => Lazy.Value;
         private static readonly Lazy<ICollection> Lazy = new Lazy<ICollection>(() => new Collection());
-        private readonly ConcurrentDictionary<Guid, IJobDetail> _completedJobs = new ConcurrentDictionary<Guid, IJobDetail>();
-        private readonly ConcurrentDictionary<Guid, IJobDetail> _runningJobs = new ConcurrentDictionary<Guid, IJobDetail>();
+        private readonly ConcurrentDictionary<Guid, IJobDetail> _jobs = new ConcurrentDictionary<Guid, IJobDetail>();
         private readonly ConcurrentDictionary<IJobDetail, IJobResult> _results = new ConcurrentDictionary<IJobDetail, IJobResult>();
         private readonly Mutex _mutex = new Mutex();
 
@@ -23,20 +23,21 @@ namespace EazeCrawler.Data
 
         public void JobStarted(IJobDetail jobDetail)
         {
-            _runningJobs.TryAdd(jobDetail.Id, jobDetail);
+            jobDetail.Status = JobStatus.Running;
+            _jobs.TryAdd(jobDetail.Id, jobDetail);
         }
 
         public void JobCompleted(IJobDetail jobDetail, IJobResult jobResult)
         {
-            _runningJobs.TryRemove(jobDetail.Id, out var _);
-            _completedJobs.TryAdd(jobDetail.Id, jobDetail);
+            jobDetail.Status = JobStatus.Completed;
+            _jobs.TryAdd(jobDetail.Id, jobDetail);
             _results.TryAdd(jobDetail, jobResult);
         }
 
         public IList<IJobDetail> GetCompletedJobs()
         {
             _mutex.WaitOne();
-            var results = _completedJobs.Values.ToList();
+            var results = _jobs.Values.ToList();
             _mutex.ReleaseMutex();
 
             return results;
@@ -45,12 +46,16 @@ namespace EazeCrawler.Data
         public IList<IJobDetail> GetRunningJobs()
         {
             _mutex.WaitOne();
-            var results = _runningJobs.Values.ToList();
+            var results = _jobs.Values.ToList();
             _mutex.ReleaseMutex();
 
             return results;
         }
 
+        /// <summary>
+        /// Get available results from completed jobs
+        /// </summary>
+        /// <returns>List of IJobResults</returns>
         public IList<IJobResult> GetResults()
         {
             _mutex.WaitOne();
@@ -60,9 +65,15 @@ namespace EazeCrawler.Data
             return results;
         }
 
+
         public IJobResult GetResults(IJobDetail jobDetail)
         {
             return _results.TryGetValue(jobDetail, out var result) ? result : new JobResult();
+        }
+
+        public IJobDetail GetJob(Guid jobId)
+        {
+            return _jobs.TryGetValue(jobId, out var jobDetail) ? jobDetail : null;
         }
     }
 }

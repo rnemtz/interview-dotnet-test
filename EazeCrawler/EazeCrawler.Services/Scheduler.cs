@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EazeCrawler.Common.Events;
 using EazeCrawler.Common.Interfaces;
@@ -24,8 +24,6 @@ namespace EazeCrawler.Services
         {
             _eventManager = eventManager;
 
-            //TODO Add correct properties
-            //var props = new NameValueCollection {{"quartz.serializer.type", "binary"}};
             _schedulerFactory = new StdSchedulerFactory();
 
             _dataCollection = Collection.Instance;
@@ -35,6 +33,55 @@ namespace EazeCrawler.Services
             _pendingJobs.ItemEnqueued += PendingJobsItemEnqueued;
         }
 
+        //Public Methods
+        public async Task<IJobResult> GetResults(IJobDetail jobDetail)
+        {
+            return await Task.Run(() =>  _dataCollection.GetResults(jobDetail));
+        }
+
+        /// <summary>
+        /// Request to return results from Data Collection
+        /// </summary>
+        /// <returns>List of IJobResult</returns>
+        public async Task<IList<IJobResult>> GetResults()
+        {
+            return await Task.Run(() => _dataCollection.GetResults());
+        }
+
+        public async Task<IJobDetail> GetJobStatus(Guid jobId)
+        {
+            return await Task.Run(() => _dataCollection.GetJob(jobId));
+        }
+
+        //Private Methods
+        public async Task<IJobDetail> ScheduleJob(IJobDetail jobDetail)
+        {
+            jobDetail.Status = JobStatus.Pending;
+            await Task.Run(() =>
+            {
+                _pendingJobs.Enqueue(jobDetail);
+                _eventManager.PublishEvent<JobCreatedEventArgs>(new JobCreatedEventArgs { JobDetail = jobDetail });
+            });
+            return jobDetail;
+        }
+
+        private async Task ExecuteJob(IJobDetail jobDetail)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            var job = JobBuilder.Create<Crawler>()
+                .WithIdentity(jobDetail.Id.ToString(), jobDetail.Name)
+                .Build();
+
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity(jobDetail.Id.ToString(), jobDetail.Name)
+                .StartNow()
+                .Build();
+
+            await scheduler.ScheduleJob(job, trigger);
+            await scheduler.Start();
+        }
+
+        //Events
         private void PendingJobsItemEnqueued(object sender, IJobDetail e)
         {
             if (_pendingJobs.TryDequeue(out var jobDetail)) ExecuteJob(jobDetail).GetAwaiter();
@@ -56,48 +103,6 @@ namespace EazeCrawler.Services
                 var job = (JobCreatedEventArgs) e;
                 _dataCollection.JobStarted(job.JobDetail);
             });
-        }
-
-        public async Task<IJobDetail> ScheduleJob(IJobDetail jobDetail)
-        {
-            jobDetail.Status = JobStatus.Pending;
-            await Task.Run(() =>
-            {
-                _pendingJobs.Enqueue(jobDetail);
-                _eventManager.PublishEvent<JobCreatedEventArgs>(new JobCreatedEventArgs { JobDetail = jobDetail});
-            });
-            return jobDetail;
-        }
-
-        public async Task ExecuteJob(IJobDetail jobDetail)
-        {
-            var scheduler = await _schedulerFactory.GetScheduler();
-
-            var job = JobBuilder.Create<Crawler>()
-                .WithIdentity(jobDetail.Id.ToString(), jobDetail.Name)
-                .Build();
-
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity(jobDetail.Id.ToString(), jobDetail.Name)
-                .StartNow()
-                .Build();
-
-            await scheduler.ScheduleJob(job, trigger);
-            await scheduler.Start();
-        }
-
-        public async Task<IJobResult> GetResults(IJobDetail jobDetail)
-        {
-            IJobResult result = new JobResult();
-            await Task.Run(() => { result = _dataCollection.GetResults(jobDetail); });
-            return result;
-        }
-
-        public async Task<IList<IJobResult>> GetResults()
-        {
-            IList<IJobResult> results = new List<IJobResult>();
-            await Task.Run(() => { results = _dataCollection.GetResults(); });
-            return results;
         }
     }
 }

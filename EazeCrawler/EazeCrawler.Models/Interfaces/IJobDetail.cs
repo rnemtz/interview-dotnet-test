@@ -5,8 +5,9 @@ namespace EazeCrawler.Common.Interfaces
 {
     public interface IJobDetail
     {
-        Guid Id { get; set; }
-        string Name { get; set; }
-        JobStatus Status { get; set; }
+         Guid Id { get; set; }
+         string Name { get; set; }
+         string Url { get; set; }
+         JobStatus Status { get; set; }
     }
 }

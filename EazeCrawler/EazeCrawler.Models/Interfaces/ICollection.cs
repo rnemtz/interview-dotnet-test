@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EazeCrawler.Common.Interfaces
 {
@@ -10,5 +12,6 @@ namespace EazeCrawler.Common.Interfaces
         IList<IJobDetail> GetRunningJobs();
         IList<IJobResult> GetResults();
         IJobResult GetResults(IJobDetail jobDetail);
+        IJobDetail GetJob(Guid jobId);
     }
 }
