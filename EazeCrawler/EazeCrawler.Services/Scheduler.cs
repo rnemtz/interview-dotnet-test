@@ -28,7 +28,7 @@ namespace EazeCrawler.Services
 
             _dataCollection = Collection.Instance;
 
-            _eventManager.JobCreated += EventManagerJobCreated;
+            _eventManager.JobCreated += EventManagerJobStarted;
             _eventManager.JobCompleted += EventManagerJobCompleted;
             _pendingJobs.ItemEnqueued += PendingJobsItemEnqueued;
         }
@@ -92,15 +92,17 @@ namespace EazeCrawler.Services
             Task.Run(() =>
             {
                 var job = (JobCompletedEventArgs) e;
+                job.JobDetail.CompletedAt = DateTime.UtcNow;
                 _dataCollection.JobCompleted(job.JobDetail, job.Results);
             });
         }
 
-        private void EventManagerJobCreated(object sender, IJobEventArgs e)
+        private void EventManagerJobStarted(object sender, IJobEventArgs e)
         {
             Task.Run(() =>
             {
                 var job = (JobCreatedEventArgs) e;
+                job.JobDetail.StartedAt = DateTime.UtcNow;
                 _dataCollection.JobStarted(job.JobDetail);
             });
         }

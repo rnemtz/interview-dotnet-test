@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
 
@@ -37,7 +36,7 @@ namespace EazeCrawler.Data
         public IList<IJobDetail> GetCompletedJobs()
         {
             _mutex.WaitOne();
-            var results = _jobs.Values.ToList();
+            var results = _jobs.Values.Where(x => x.Status == JobStatus.Completed).ToList();
             _mutex.ReleaseMutex();
 
             return results;
@@ -46,7 +45,7 @@ namespace EazeCrawler.Data
         public IList<IJobDetail> GetRunningJobs()
         {
             _mutex.WaitOne();
-            var results = _jobs.Values.ToList();
+            var results = _jobs.Values.Where(x=> x.Status == JobStatus.Running).ToList();
             _mutex.ReleaseMutex();
 
             return results;
@@ -65,10 +64,9 @@ namespace EazeCrawler.Data
             return results;
         }
 
-
         public IJobResult GetResults(IJobDetail jobDetail)
         {
-            return _results.TryGetValue(jobDetail, out var result) ? result : new JobResult();
+            return _results.TryGetValue(jobDetail, out var result) ? result : null;
         }
 
         public IJobDetail GetJob(Guid jobId)

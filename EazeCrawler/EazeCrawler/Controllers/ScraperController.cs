@@ -49,9 +49,8 @@ namespace EazeCrawler.Controllers
             try
             {
                 if (jobDetail.Id == default(Guid)) jobDetail.Id = Guid.NewGuid();
-
-                await _schedulerService.ScheduleJob(jobDetail);
-                return Ok(jobDetail);
+                
+                return Ok(await _schedulerService.ScheduleJob(jobDetail));
             }
             catch (Exception exception)
             {

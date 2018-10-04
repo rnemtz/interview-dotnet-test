@@ -9,5 +9,7 @@ namespace EazeCrawler.Common.Interfaces
          string Name { get; set; }
          string Url { get; set; }
          JobStatus Status { get; set; }
+         DateTime StartedAt { get; set; }
+         DateTime CompletedAt { get; set; }
     }
 }
