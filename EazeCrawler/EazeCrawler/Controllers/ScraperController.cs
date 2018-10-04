@@ -22,7 +22,8 @@ namespace EazeCrawler.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IJobDetail>>> Get()
         {
-            await Task.Run(() => new[] {new JobDetail {Id = Guid.NewGuid(), Name = "Test"}});
+            var job = new JobDetail {Id = Guid.NewGuid(), Name = "Test"};
+            var result = await _schedulerService.ScheduleJob(job);
             return null;
         }
 
@@ -31,8 +32,8 @@ namespace EazeCrawler.Controllers
         public async Task<IActionResult> Post(IJobDetail jobDetail)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await _schedulerService.ExecuteJob(jobDetail);
-            return CreatedAtAction("", "", new {JobDetail = jobDetail}, result);
+             //await _schedulerService.ExecuteJob(jobDetail);
+            return CreatedAtAction("", "", new {JobDetail = jobDetail}, jobDetail);
         }
     }
 }

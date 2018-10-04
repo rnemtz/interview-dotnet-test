@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EazeCrawler.Data\EazeCrawler.Data.csproj" />
     <ProjectReference Include="..\EazeCrawler.Models\EazeCrawler.Common.csproj" />
     <ProjectReference Include="..\EazeCrawler.Services\EazeCrawler.Services.csproj" />
   </ItemGroup>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EazeCrawler.Common.Interfaces
+﻿namespace EazeCrawler.Common.Interfaces
 {
     public interface IJobEventArgs
     {

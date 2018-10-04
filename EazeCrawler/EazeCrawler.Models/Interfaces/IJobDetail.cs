@@ -1,4 +1,5 @@
 ﻿using System;
+using EazeCrawler.Common.Models;
 
 namespace EazeCrawler.Common.Interfaces
 {
@@ -6,5 +7,6 @@ namespace EazeCrawler.Common.Interfaces
     {
         Guid Id { get; set; }
         string Name { get; set; }
+        JobStatus Status { get; set; }
     }
 }

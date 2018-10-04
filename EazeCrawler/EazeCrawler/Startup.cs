@@ -67,9 +67,9 @@ namespace EazeCrawler
                 kernel.Bind(ctrlType).ToSelf().InScope(RequestScope);
 
             // This is where our bindings are configurated
+            kernel.Bind<ICrawler>().To<Crawler>().InScope(RequestScope);
             kernel.Bind<IEventManager>().To<EventManager>().InSingletonScope();
             kernel.Bind<IScheduler>().To<Scheduler>().InSingletonScope();
-            kernel.Bind<ICollection>().To<Data.Collection>().InSingletonScope();
                 
             // Cross-wire required framework services
             kernel.BindToMethod(app.GetRequestService<IViewBufferScope>);
