@@ -4,9 +4,9 @@ namespace EazeCrawler.Common.Interfaces
 {
     public interface IEventManager
     {
-        event EventHandler<IJobEventArgs> JobCompleted;
-        event EventHandler<IJobEventArgs> JobCreated;
-        event EventHandler<IJobEventArgs> JobRunning;
-        void PublishEvent<T>(IJobEventArgs args);
+        event EventHandler<IJob> JobCompleted;
+        event EventHandler<IJob> JobCreated;
+        event EventHandler<IJob> JobRunning;
+        void PublishEvent<T>(IJob args);
     }
 }

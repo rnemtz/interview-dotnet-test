@@ -18,6 +18,7 @@ namespace EazeCrawler.Controllers
         }
 
         // GET api/v1/scraper
+        // GET api/v1/scraper?id=<id>
         [HttpGet]
         public async Task<IActionResult> Get(Guid id = default(Guid))
         {
@@ -34,6 +35,24 @@ namespace EazeCrawler.Controllers
 
                 return Ok(job);
 
+            }
+            catch (Exception exception)
+            {
+                return StatusCode(500, exception);
+            }
+        }
+
+        // GET api/v1/scraper/{id}/results
+        [HttpGet]
+        [Route("{id}/results")]
+        public async Task<IActionResult> GetResults(Guid id)
+        {
+            if (id == default(Guid)) return BadRequest();
+            try
+            {
+                var results = await _schedulerService.GetResults(id);
+                if (results == null) return NoContent();
+                return Ok(results);
             }
             catch (Exception exception)
             {

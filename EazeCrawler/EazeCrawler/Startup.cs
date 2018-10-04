@@ -71,7 +71,6 @@ namespace EazeCrawler
             kernel.Bind<ICrawler>().To<Crawler>().InScope(RequestScope);
             kernel.Bind<IJobDetail>().To<JobDetail>().InScope(RequestScope);
 
-            kernel.Bind<IEventManager>().To<EventManager>().InSingletonScope();
             kernel.Bind<IScheduler>().To<Scheduler>().InSingletonScope();
                 
             // Cross-wire required framework services

@@ -3,7 +3,7 @@ using EazeCrawler.Common.Interfaces;
 
 namespace EazeCrawler.Common.Events
 {
-    public class JobCreatedEventArgs: EventArgs, IJobEventArgs
+    public class JobCreatedEventArgs: EventArgs, IJob
     {
         public IJobDetail JobDetail { get; set; }
         public IJobResult Results { get; set; }

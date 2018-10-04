@@ -13,4 +13,10 @@
     <ProjectReference Include="..\EazeCrawler.Data\EazeCrawler.Data.csproj" />
     <ProjectReference Include="..\EazeCrawler.Models\EazeCrawler.Common.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Ninject">
+      <HintPath>..\..\..\..\..\.nuget\packages\ninject\3.3.4\lib\netstandard2.0\Ninject.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

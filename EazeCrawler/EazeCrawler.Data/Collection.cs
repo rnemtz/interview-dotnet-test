@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
 
@@ -14,7 +13,6 @@ namespace EazeCrawler.Data
         private static readonly Lazy<ICollection> Lazy = new Lazy<ICollection>(() => new Collection());
         private readonly ConcurrentDictionary<Guid, IJobDetail> _jobs = new ConcurrentDictionary<Guid, IJobDetail>();
         private readonly ConcurrentDictionary<IJobDetail, IJobResult> _results = new ConcurrentDictionary<IJobDetail, IJobResult>();
-        private readonly Mutex _mutex = new Mutex();
 
         private Collection()
         {
@@ -28,25 +26,25 @@ namespace EazeCrawler.Data
 
         public void JobCompleted(IJobDetail jobDetail, IJobResult jobResult)
         {
+            if (!_jobs.ContainsKey(jobDetail.Id)) return;
+
+            var currentJobDetail = _jobs[jobDetail.Id];
             jobDetail.Status = JobStatus.Completed;
-            _jobs.TryAdd(jobDetail.Id, jobDetail);
+            
+            _jobs.TryUpdate(jobDetail.Id, jobDetail, currentJobDetail);
             _results.TryAdd(jobDetail, jobResult);
         }
 
         public IList<IJobDetail> GetCompletedJobs()
         {
-            _mutex.WaitOne();
             var results = _jobs.Values.Where(x => x.Status == JobStatus.Completed).ToList();
-            _mutex.ReleaseMutex();
 
             return results;
         }
 
         public IList<IJobDetail> GetRunningJobs()
         {
-            _mutex.WaitOne();
             var results = _jobs.Values.Where(x=> x.Status == JobStatus.Running).ToList();
-            _mutex.ReleaseMutex();
 
             return results;
         }
@@ -57,9 +55,7 @@ namespace EazeCrawler.Data
         /// <returns>List of IJobResults</returns>
         public IList<IJobResult> GetResults()
         {
-            _mutex.WaitOne();
             var results = _results.Values.ToList();
-            _mutex.ReleaseMutex();
 
             return results;
         }
@@ -69,9 +65,14 @@ namespace EazeCrawler.Data
             return _results.TryGetValue(jobDetail, out var result) ? result : null;
         }
 
-        public IJobDetail GetJob(Guid jobId)
+        public IJob GetJob(Guid jobId)
         {
-            return _jobs.TryGetValue(jobId, out var jobDetail) ? jobDetail : null;
+            var job = new Job();
+            if (!_jobs.TryGetValue(jobId, out var jobDetail)) return null;
+
+            job.JobDetail = jobDetail;
+            job.Results = jobDetail.Status == JobStatus.Completed ? _results[jobDetail] : null;
+            return job;
         }
     }
 }

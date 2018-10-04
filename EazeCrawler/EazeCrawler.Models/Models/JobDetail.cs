@@ -9,7 +9,7 @@ namespace EazeCrawler.Common.Models
         public string Name { get; set; }
         public string Url { get; set; }
         public JobStatus Status { get; set; }
-        public DateTime StartedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime CompletedAt { get; set; }
     }
 

@@ -12,6 +12,6 @@ namespace EazeCrawler.Common.Interfaces
         IList<IJobDetail> GetRunningJobs();
         IList<IJobResult> GetResults();
         IJobResult GetResults(IJobDetail jobDetail);
-        IJobDetail GetJob(Guid jobId);
+        IJob GetJob(Guid jobId);
     }
 }

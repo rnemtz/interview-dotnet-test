@@ -1,6 +1,6 @@
 ﻿namespace EazeCrawler.Common.Interfaces
 {
-    public interface IJobEventArgs
+    public interface IJob
     {
         IJobDetail JobDetail { get; set; }
         IJobResult Results { get; set; }
