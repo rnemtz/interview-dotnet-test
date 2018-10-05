@@ -4,6 +4,6 @@ namespace EazeCrawler.Common.Interfaces
 {
     public interface IJobResult
     {
-        IList<string> UrList { get; set; }
+        IList<IScrapedUrl> List { get; set; }
     }
 }

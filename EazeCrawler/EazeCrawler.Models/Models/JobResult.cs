@@ -5,11 +5,11 @@ namespace EazeCrawler.Common.Models
 {
     public class JobResult : IJobResult
     {
-        public IList<string> UrList { get; set; }
-
         public JobResult()
         {
-            UrList = new List<string>();
+            List = new List<IScrapedUrl>();
         }
+
+        public IList<IScrapedUrl> List { get; set; }
     }
 }
