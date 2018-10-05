@@ -38,10 +38,10 @@ namespace EazeCrawler.Services
         //Public Methods
         public async Task<IJobResult> GetResults(Guid id)
         {
-            return await Task.Run(() => _dataCollection.GetJob(id).Results);
+            return await Task.Run(() => _dataCollection.GetJob(id)?.Results);
         }
 
-        public async Task<IList<IJobResult>> GetResults()
+        public async Task<IList<IScrapedUrlResult>> GetResults()
         {
             return await Task.Run(() => _dataCollection.GetResults());
         }

@@ -1,10 +1,9 @@
 ﻿namespace EazeCrawler.Common.Interfaces
 {
-    public interface IScrapedUrl
+    public interface IScrapedUrlResult
     {
         string Title { get; set; }
         string Description { get; set; }
         string Url { get; set; }
-        string Body { get; set; }
     }
 }

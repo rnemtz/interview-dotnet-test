@@ -10,7 +10,7 @@ namespace EazeCrawler.Common.Interfaces
         void JobCompleted(IJobDetail jobDetail, IJobResult jobResult);
         IList<IJobDetail> GetCompletedJobs();
         IList<IJobDetail> GetRunningJobs();
-        IList<IJobResult> GetResults();
+        IList<IScrapedUrlResult> GetResults();
         IJobResult GetResults(IJobDetail jobDetail);
         IJob GetJob(Guid jobId);
     }

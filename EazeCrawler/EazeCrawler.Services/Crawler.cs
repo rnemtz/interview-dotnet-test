@@ -1,25 +1,24 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using EazeCrawler.Common.Events;
+using EazeCrawler.Common.Extensions;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using HtmlAgilityPack;
 using Quartz;
 using IJob = Quartz.IJob;
 using IJobDetail = EazeCrawler.Common.Interfaces.IJobDetail;
 
 namespace EazeCrawler.Services
 {
-    [DisallowConcurrentExecution]
     public class Crawler : ICrawler, IJob
     {
         private readonly IEventManager _eventManager;
-        private const int MaxLevel = 3;
+        private const int MaxLevel = 2;
         public Crawler()
         {
             _eventManager = EventManager.Instance;
@@ -29,95 +28,95 @@ namespace EazeCrawler.Services
         {
             var result = new JobResult();
             var visited = new HashSet<Uri>();
-            var pending = new Queue<Uri>();
+            var pending = new ConcurrentQueue<Uri>();
             var jobDetail = GetJobDetail(context);
             var requestedUri = new Uri(jobDetail.Url);
 
             pending.Enqueue(requestedUri);
             pending.Enqueue(null);
 
-            var level = 0;
+            var level = 1;
             while (pending.Count > 0)
             {
-                var current = pending.Dequeue();
-                if (current == null)
+                if (!pending.TryDequeue(out var currentUri)) continue;
+                if (currentUri == null && level < MaxLevel)
                 {
                     level++;
                     if (pending.Count > 0) pending.Enqueue(null);
                 }
                 else
                 {
-                    if (!visited.Add(current)) continue;
-                    //get page details
-                    //add to results
-                    if (level >= MaxLevel) continue;
-                    //get page links
-                    var list = await GetListFromUri(current);
-                    foreach (var uri in list)
-                    {
-                        if (visited.Contains(uri)) continue;
-                        pending.Enqueue(uri);
-                    }
-                }
+                    if (currentUri == null || !visited.Add(currentUri)) continue;
+                    var scrapedPage = await GetUriDetails(currentUri);
+                    if (scrapedPage==null) continue;
+                    
+                    result.List.Add(scrapedPage.ToScrapedUrlResult());
 
-                
-            }
-            visited.Remove(requestedUri);
-            foreach (var uri in visited)
-            {
-                //result.UrList.Add(uri.AbsoluteUri);
+                    if (level >= MaxLevel) continue;
+
+                    var links = await GetLinksFromBody(currentUri, scrapedPage);
+                    var linkList = links.Where( x=> !visited.Contains(x)).ToList();
+                    var tasks = linkList.Select(async link =>
+                    {
+                        await Task.Run(() =>
+                        {
+                            pending.Enqueue(link);
+                        });
+                    });
+                    await Task.WhenAll(tasks);
+                }
             }
 
             var args = new JobCompletedEventArgs {JobDetail = jobDetail, Results = result};
             ExecuteOnCompleted(args);
         }
 
-        private static async Task<IScrapedUrl> GetUrlDetails(string body)
+        private static async Task<IScrapedUrl> GetUriDetails(Uri url)
         {
-            var document = new HtmlAgilityPack.HtmlDocument();
+            var body = await GetHttpContent(url);
+            if (string.IsNullOrWhiteSpace(body)) return null;
+
+            var document = new HtmlDocument();
             document.LoadHtml(body);
 
-            var title = document.DocumentNode.SelectSingleNode("//title").InnerText;
-            var description = document.DocumentNode.SelectSingleNode("//meta[@name='description']").InnerText;
-            var keywords = document.DocumentNode.SelectSingleNode("//meta[@name='keywords']").InnerText;
+            var urlDetails = new ScrapedUrl
+            {
+                Body = body,
+                Url = url.AbsoluteUri,
+                Title = document.DocumentNode.SelectSingleNode("//title")?.InnerText ?? string.Empty,
+                Description = document.DocumentNode.SelectSingleNode("//meta[@name='description']")?.InnerText ??
+                              string.Empty
+            };
 
-
-            return null;
+            return urlDetails;
         }
 
-
-        private static async Task<IEnumerable<Uri>> GetListFromUri(Uri url)
+        private static async Task<IEnumerable<Uri>> GetLinksFromBody(Uri url, IScrapedUrl scrapedUrl)
         {
             var result = new HashSet<Uri>();
             try
             {
-                var body = await GetHttpContent(url);
-                var document = new HtmlAgilityPack.HtmlDocument();
-
-                document.LoadHtml(body);
+                var document = new HtmlDocument();
+                document.LoadHtml(scrapedUrl.Body);
 
                 var tags = document.DocumentNode.SelectNodes("//a")
                     .Select(p => p.GetAttributeValue("href", "not found"))
+                    .Where(x => x.Length > 1 
+                                && !x.ToLower().StartsWith("javascript") 
+                                && !x.ToLower().StartsWith("tel:")
+                                && !x.ToLower().StartsWith("mailto:")
+                                && x != "not found")
+                    .Distinct()
                     .ToList();
 
-                foreach (var tag in tags)
-                {
-                    if (tag.Length == 1) continue;
-
-                    var currentTag = tag;
-                    if (tag.StartsWith("//")) currentTag = $"{url.Scheme}:{tag.Substring(2, tag.Length - 1)}";
-                    else if (tag.StartsWith("/")) currentTag = $"{url.AbsoluteUri}{tag.Substring(1, tag.Length - 1)}";
-                    else if (tag.StartsWith("#")) currentTag = $"{url.AbsoluteUri}{tag}";
-                    else if (tag.StartsWith("?")) currentTag = $"{url.AbsoluteUri.Substring(0, url.AbsoluteUri.Length - 2)}{tag}";
-                    else if (tag.ToLower().StartsWith("javascript") || tag.StartsWith("not found")) continue;
-
-                    result.Add(new Uri(currentTag));
-                }
+                var bag = new ConcurrentBag<Uri>();
+                var tasks = tags.Select(async tag => { await Task.Run(() => { bag.Add(new Uri(url, tag)); }); });
+                await Task.WhenAll(tasks);
+                foreach (var tag in bag) result.Add(tag);
             }
             catch (Exception)
             {
                 //Handle Exception gracefully
-                //Log perhaps if needed.
             }
             return result;
         }

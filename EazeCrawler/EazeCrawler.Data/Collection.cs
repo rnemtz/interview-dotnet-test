@@ -53,11 +53,13 @@ namespace EazeCrawler.Data
         /// Get available results from completed jobs
         /// </summary>
         /// <returns>List of IJobResults</returns>
-        public IList<IJobResult> GetResults()
+        public IList<IScrapedUrlResult> GetResults()
         {
-            var results = _results.Values.ToList();
+            var result = new List<IScrapedUrlResult>();
+            foreach (var item in _results.Values.Where(x => x.List.Count > 0).ToList())
+                result.AddRange(item.List);
 
-            return results;
+            return result;
         }
 
         public IJobResult GetResults(IJobDetail jobDetail)

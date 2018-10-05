@@ -2,11 +2,10 @@
 
 namespace EazeCrawler.Common.Models
 {
-    public class ScrapedUrl: IScrapedUrl
+    public class ScrapedUrlResult: IScrapedUrlResult
     {
         public string Title { get; set; }
         public string Description { get; set; }
         public string Url { get; set; }
-        public string Body { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace EazeCrawler.Common.Interfaces
     {
         Task<IJobDetail> ScheduleJob (IJobDetail jobDetail);
         Task<IJobResult> GetResults(Guid id);
-        Task<IList<IJobResult>> GetResults();
+        Task<IList<IScrapedUrlResult>> GetResults();
         Task<IJob> GetJobStatus(Guid jobId);
     }
 }

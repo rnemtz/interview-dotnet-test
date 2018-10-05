@@ -7,9 +7,9 @@ namespace EazeCrawler.Common.Models
     {
         public JobResult()
         {
-            List = new List<IScrapedUrl>();
+            List = new List<IScrapedUrlResult>();
         }
 
-        public IList<IScrapedUrl> List { get; set; }
+        public IList<IScrapedUrlResult> List { get; set; }
     }
 }
