@@ -92,14 +92,6 @@ namespace EazeCrawler.Tests
             return list;
         }
 
-        [Fact]
-        public void DeleteResultsTest()
-        {
-            var data = Collection.Instance;
-            var completedJobs = data.GetCompletedJobs();
-            Assert.Equal(0, completedJobs.Count);
-        }
-
         private IJobDetail GetNewJobDetail(Guid id = default(Guid), JobStatus status = JobStatus.Pending)
         {
             var job = new JobDetail
