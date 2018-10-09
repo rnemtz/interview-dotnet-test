@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using EazeCrawler.Common.Interfaces;
 
 namespace EazeCrawler.Common.Models

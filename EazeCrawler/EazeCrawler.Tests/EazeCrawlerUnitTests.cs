@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
-using EazeCrawler.Data;
 using Moq;
 using Xunit;
 

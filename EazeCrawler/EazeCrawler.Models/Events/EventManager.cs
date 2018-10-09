@@ -1,8 +1,7 @@
 ﻿using System;
-using EazeCrawler.Common.Events;
 using EazeCrawler.Common.Interfaces;
 
-namespace EazeCrawler.Services
+namespace EazeCrawler.Common.Events
 {
     public sealed class EventManager : IEventManager
     {
