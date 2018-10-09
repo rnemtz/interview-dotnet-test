@@ -61,62 +61,64 @@ Url: **http://eazecrawler.us-east-1.elasticbeanstalk.com/api/v1/scraper**
 Method: **DELETE**
 
 #### Result
-  OK 
+  
+    OK 
     {
-      "mesasge": "All results were deleted sucessfully",
-      "deletedResults": 1,
-      "statusCode": 200
-  }
+        "mesasge": "All results were deleted sucessfully",
+        "deletedResults": 1,
+        "statusCode": 200
+    }
 
 #### Get specific Job Information
 
 Url: **http://eazecrawler.us-east-1.elasticbeanstalk.com/api/v1/scraper/{id}**
 Method: **GET**
 #### Result 
-  OK
-  {
-      "jobDetail": {
-          "id": "2bd555fb-673b-41d3-ae7e-71475f07dfe4",
-          "name": "Google",
-          "url": "https://www.google.com",
-          "status": 2,
-          "createdAt": "2018-10-09T02:42:13",
-          "completedAt": "2018-10-09T02:42:29.965224Z"
-      },
-      "results": {
-          "list": [
-              {
-                  "title": "Google",
-                  "description": "",
-                  "url": "https://www.google.com/"
-              },
-              {
-                  "title": "Google - Apps",
-                  "description": "",
-                  "url": "http://www.google.com/mobile/?hl=en&tab=wD"
-              }
-          ]
-      }
-  }
+  
+    OK
+    {
+        "jobDetail": {
+            "id": "2bd555fb-673b-41d3-ae7e-71475f07dfe4",
+            "name": "Google",
+            "url": "https://www.google.com",
+            "status": 2,
+            "createdAt": "2018-10-09T02:42:13",
+            "completedAt": "2018-10-09T02:42:29.965224Z"
+        },
+        "results": {
+            "list": [
+                {
+                    "title": "Google",
+                    "description": "",
+                    "url": "https://www.google.com/"
+                },
+                {
+                    "title": "Google - Apps",
+                    "description": "",
+                    "url": "http://www.google.com/mobile/?hl=en&tab=wD"
+                }
+            ]
+        }
+    }
 
 #### Get specific Job results
 Url: **http://eazecrawler.us-east-1.elasticbeanstalk.com/api/v1/scraper/{id}/results**
 Method: **GET**
 Result
         
-  OK
-  [
-      {
-          "title": "Google",
-          "description": "",
-          "url": "https://www.google.com/"
-      },
-      {
-          "title": "Google - Apps",
-          "description": "",
-          "url": "http://www.google.com/mobile/?hl=en&tab=wD"
-      }
-  ]
+    OK
+    [
+        {
+            "title": "Google",
+            "description": "",
+            "url": "https://www.google.com/"
+        },
+        {
+            "title": "Google - Apps",
+            "description": "",
+            "url": "http://www.google.com/mobile/?hl=en&tab=wD"
+        }
+    ]
 
 ---
 ### DEVOPS
