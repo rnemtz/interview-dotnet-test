@@ -25,8 +25,8 @@ namespace EazeCrawler.Services
         public Scheduler()
         {
             _eventManager = EventManager.Instance;
-            _schedulerFactory = new StdSchedulerFactory();
             _dataCollection = Collection.Instance;
+            _schedulerFactory = new StdSchedulerFactory();
 
             _eventManager.JobCreated += EventManagerJobStarted;
             _eventManager.JobCompleted += EventManagerJobCompleted;
