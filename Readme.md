@@ -8,6 +8,13 @@ When a request to scrap a web page is received, it goes straight to an event que
 Crawler job instance will grab basic information from the web page content such as Title, Descripcion and store the URL itself to reference the job. Along with this information, it will get all its links and will add them to a queue to process them up to two level deep of the original URL. 
 
 ---
+### API DOCUMENTATION
+
+I have chosen Swashbuckle.AspNetCore a Swagger implementation for dot-net core 2.x.
+You will find id at the root of the API:
+http://eazecrawler.us-east-1.elasticbeanstalk.com
+
+---
 ### ENDPOINTS
 
 #### Post a new Job
@@ -179,6 +186,8 @@ It uses third-party libraries for easier implementation of dependency injection,
 [DotNetCore GitIgnore](https://github.com/thangchung/awesome-dotnet-core/blob/master/.gitignore)
 
 [HTML Agility Pack](https://html-agility-pack.net)
+
+[Swashbuckle (Swagger)](https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-2.1&tabs=visual-studio%2Cvisual-studio-xml)
 
 ---
 ### IMPROVEMENTS
