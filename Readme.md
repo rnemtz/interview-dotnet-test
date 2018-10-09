@@ -170,15 +170,8 @@ There is a lot room for improvement. I will list some ideas here:
 - Implement Quartz scheduler with Redis so it will store all jobs in a different source than ramstore. This will allow the crawler to run in cluster mode, a very nice way for scaling and increase performance.
 - Auto-Scale all EazeCrawler instances and set thresholds, this way we won't have to handle the growth, EBS will handle it for us.
 - Implement authentication and security for api calls, currently is wide-open. One way would be with implementing .net identity and add sessions to the headers. Also we can add access list and only allow requests from specific hosts.
-- Implement Swagger for .net core, I like this part, unfortuately I don't have much time to implement it for .net core right now.
 - Implement a User Interface to trace scraped urls, this will allow the user(s) to  see posted jobs graphically if needed or just the crawler history and will allow also to start searching for content.
 - Implement Elastic-Search or any other search for urls and content.
 - Implement ECS (In case AWS is the cloud solution) or Kubernetes with docker containers if it's decided to go with services.
 
 This might give you an idea of how this project can be extended.
-
----
-### CODE DOCUMENTATION
-I usually write code that is pretty much self-expanatory, this is not the exception, I believe all the methods and the way is configured are short enought and self-expanatory when you read them.
-
-The solution is not writing an xml documentation in the output, this was intentional.
