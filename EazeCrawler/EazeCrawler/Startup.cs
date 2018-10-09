@@ -51,7 +51,18 @@ namespace EazeCrawler
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info {Title = "EazeCrawler", Version = "v1"});
+                c.SwaggerDoc("v1", new Info
+                {
+                    Title = "EazeCrawler",
+                    Version = "v1",
+                    Description = "Eaze simple crawler API",
+                    Contact = new Contact
+                    {
+                        Name = "Rene Martinez",
+                        Email = "rene.martinez@live.com",
+                        Url = "https://github.com/rnemtz"
+                    }
+                });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
