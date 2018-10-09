@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
 
@@ -37,22 +38,14 @@ namespace EazeCrawler.Data
 
         public IList<IJobDetail> GetCompletedJobs()
         {
-            var results = _jobs.Values.Where(x => x.Status == JobStatus.Completed).ToList();
-
-            return results;
+            return _jobs.Values.Where(x => x.Status == JobStatus.Completed).ToList();
         }
 
         public IList<IJobDetail> GetRunningJobs()
         {
-            var results = _jobs.Values.Where(x=> x.Status == JobStatus.Running).ToList();
-
-            return results;
+            return _jobs.Values.Where(x=> x.Status == JobStatus.Running).ToList();
         }
 
-        /// <summary>
-        /// Get available results from completed jobs
-        /// </summary>
-        /// <returns>List of IJobResults</returns>
         public IList<IScrapedUrlResult> GetResults()
         {
             var result = new List<IScrapedUrlResult>();
@@ -75,6 +68,24 @@ namespace EazeCrawler.Data
             job.JobDetail = jobDetail;
             job.Results = jobDetail.Status == JobStatus.Completed ? _results[jobDetail] : null;
             return job;
+        }
+
+        public IJobsDeletedResult DeleteResults()
+        {
+            var jobs = new JobsDeletedResult(); 
+            try
+            {
+                jobs.DeletedResults = _results.Values.Count(x => x.List.Count > 0);
+                jobs.Mesasge = "All results were deleted sucessfully";
+                foreach (var result in _results) _jobs.TryRemove(result.Key.Id, out _);
+                _results.Clear();
+            }
+            catch (Exception exception)
+            {
+                jobs.StatusCode = HttpStatusCode.InternalServerError;
+                jobs.Mesasge = exception.Message;
+            }
+            return jobs;
         }
     }
 }

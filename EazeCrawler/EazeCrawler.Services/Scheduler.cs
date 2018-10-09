@@ -25,9 +25,7 @@ namespace EazeCrawler.Services
         public Scheduler()
         {
             _eventManager = EventManager.Instance;
-
             _schedulerFactory = new StdSchedulerFactory();
-
             _dataCollection = Collection.Instance;
 
             _eventManager.JobCreated += EventManagerJobStarted;
@@ -35,10 +33,11 @@ namespace EazeCrawler.Services
             _pendingJobs.ItemEnqueued += PendingJobsItemEnqueued;
         }
 
-        //Public Methods
-        public async Task<IJobResult> GetResults(Guid id)
+        #region Public
+
+        public async Task<IList<IScrapedUrlResult>> GetResults(Guid id)
         {
-            return await Task.Run(() => _dataCollection.GetJob(id)?.Results);
+            return await Task.Run(() => _dataCollection.GetJob(id)?.Results.List);
         }
 
         public async Task<IList<IScrapedUrlResult>> GetResults()
@@ -51,7 +50,11 @@ namespace EazeCrawler.Services
             return await Task.Run(() => _dataCollection.GetJob(jobId));
         }
 
-        //Private Methods
+        public async Task<IJobsDeletedResult> DeleteResults()
+        {
+            return await Task.Run(() => _dataCollection.DeleteResults());
+        }
+
         public async Task<IJobDetail> ScheduleJob(IJobDetail jobDetail)
         {
             jobDetail.Status = JobStatus.Pending;
@@ -59,11 +62,15 @@ namespace EazeCrawler.Services
             await Task.Run(() =>
             {
                 _pendingJobs.Enqueue(jobDetail);
-                Task.Run(() => _eventManager.PublishEvent<JobCreatedEventArgs>(new JobCreatedEventArgs {JobDetail = jobDetail}));
+                Task.Run(() => _eventManager.PublishEvent<JobCreatedEventArgs>(new JobCreatedEventArgs { JobDetail = jobDetail }));
 
             });
             return jobDetail;
         }
+
+        #endregion
+
+        #region Private
 
         private async Task ExecuteJob(IJobDetail jobDetail)
         {
@@ -73,7 +80,7 @@ namespace EazeCrawler.Services
                 .UsingJobData("Id", jobDetail.Id.ToString())
                 .UsingJobData("Name", jobDetail.Name)
                 .UsingJobData("Url", jobDetail.Url)
-                .UsingJobData("Status", (int)jobDetail.Status)
+                .UsingJobData("Status", (int) jobDetail.Status)
                 .UsingJobData("CreatedAt", jobDetail.CreatedAt.ToString(CultureInfo.InvariantCulture))
                 .UsingJobData("CompletedAt", jobDetail.CompletedAt.ToString(CultureInfo.InvariantCulture))
                 .Build();
@@ -87,7 +94,10 @@ namespace EazeCrawler.Services
             await scheduler.Start();
         }
 
-        //Events
+        #endregion
+
+        #region Events
+
         private void PendingJobsItemEnqueued(object sender, IJobDetail e)
         {
             if (_pendingJobs.TryDequeue(out var jobDetail)) Task.Run(() => ExecuteJob(jobDetail));
@@ -111,5 +121,7 @@ namespace EazeCrawler.Services
                 _dataCollection.JobStarted(job.JobDetail);
             });
         }
+
+        #endregion
     }
 }

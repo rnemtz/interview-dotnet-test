@@ -13,5 +13,6 @@ namespace EazeCrawler.Common.Interfaces
         IList<IScrapedUrlResult> GetResults();
         IJobResult GetResults(IJobDetail jobDetail);
         IJob GetJob(Guid jobId);
+        IJobsDeletedResult DeleteResults();
     }
 }
