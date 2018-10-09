@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using EazeCrawler.Common.Interfaces;
 using EazeCrawler.Common.Models;
@@ -14,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Ninject;
 using Ninject.Activation;
 using Ninject.Infrastructure.Disposal;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace EazeCrawler
 {
@@ -44,6 +47,15 @@ namespace EazeCrawler
             services.AddRequestScopingMiddleware(() => _scopeProvider.Value = new Scope());
             services.AddCustomControllerActivation(Resolve);
             services.AddCustomViewComponentActivation(Resolve);
+            services.AddMvc();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info {Title = "EazeCrawler", Version = "v1"});
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +65,13 @@ namespace EazeCrawler
 
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             else app.UseHsts();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "EazeCrawler");
+                c.RoutePrefix = string.Empty;
+            });
 
             app.UseHttpsRedirection();
             app.UseMvc();

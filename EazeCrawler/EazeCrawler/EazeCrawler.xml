@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EazeCrawler</name>
+    </assembly>
+    <members>
+        <member name="T:EazeCrawler.Controllers.ScraperController">
+            <inheritdoc />
+            <summary>
+            Scraper Controller
+            </summary>
+        </member>
+        <member name="M:EazeCrawler.Controllers.ScraperController.#ctor(EazeCrawler.Common.Interfaces.IScheduler)">
+            <inheritdoc />
+        </member>
+        <member name="M:EazeCrawler.Controllers.ScraperController.Post(EazeCrawler.Common.Models.JobDetail)">
+             <summary>
+             Post a new scrap job
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 POST /api/v1/scraper
+                 {
+                    "name": "Google",
+                    "Url": "https://www.google.com"
+                 }
+            
+             </remarks>
+             <param name="jobDetail">Job Detail</param>
+             <returns>Job Detail received</returns>
+        </member>
+        <member name="M:EazeCrawler.Controllers.ScraperController.GetResults">
+             <summary>
+             Get Jobs Results
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 GET /api/v1/scraper/
+            
+              </remarks>
+             <returns>List of Scraped urls</returns>
+        </member>
+        <member name="M:EazeCrawler.Controllers.ScraperController.Delete">
+             <summary>
+             Delete Current Results
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 DELETE /api/v1/scraper/
+            
+              </remarks>
+             <returns>Delete Result</returns>
+        </member>
+        <member name="M:EazeCrawler.Controllers.ScraperController.GetJobInformation(System.Guid)">
+             <summary>
+             Get Job Information with results if available
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 GET /api/v1/scraper/{id}
+            
+              </remarks>
+             <param name="id">Job Id</param>
+             <returns>Job Information</returns>
+        </member>
+        <member name="M:EazeCrawler.Controllers.ScraperController.GetJobResults(System.Guid)">
+             <summary>
+             Get job results
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 GET /api/v1/scraper/{id}
+            
+              </remarks>
+             <param name="id">Job Id</param>
+             <returns>List of Scraped urls for the job</returns>
+        </member>
+    </members>
+</doc>
